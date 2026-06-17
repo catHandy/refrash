@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"></meta>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+<title>우리집 부엌 — 냉장고 인벤토리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"></link>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"></link>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&amp;family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"></link>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  font-family: 'IBM Plex Sans KR', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============ 테마 ============ */
+.app {
+  --accent: #3E6075;
+  --warn: #C2823C;
+  --danger: #B14A39;
+  --ok: #5C8A73;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  display: grid;
+  grid-template-columns: minmax(370px, 470px) minmax(0, 1fr);
+  gap: 32px;
+  padding: 28px 36px 48px;
+  transition: background .3s ease, color .3s ease;
+}
+.theme-cool {
+  --bg: #E7ECEF; --panel: #FFFFFF; --panel2: #F1F4F6; --ink: #283139; --muted: #8A95A0;
+  --line: #DBE2E7; --input: #FFFFFF;
+  --wood: #CBC2B3; --wood-dark: #B0A693; --cab-bg: #ECE6DB;
+  --shell: #D4DBE0; --shell-dark: #B5BFC6;
+  --fz-bg: #D6E2EA; --cold-bg: #EDF2F5;
+  --shelf: #CEC5B5; --shelf-fz: #B7C8D1;
+  --tile: #FFFFFF;
+  --shadow-soft: 0 1px 2px rgba(40,49,57,.07);
+  --shadow-raise: 0 8px 22px rgba(40,49,57,.10);
+}
+.theme-warm {
+  --bg: #F3EBDD; --panel: #FFFCF5; --panel2: #F6EEDE; --ink: #3E3528; --muted: #97896F;
+  --line: #E7DCC6; --input: #FFFFFF;
+  --wood: #C09467; --wood-dark: #A47A4E; --cab-bg: #F7EFDC;
+  --shell: #E9E0CC; --shell-dark: #CFC3A8;
+  --fz-bg: #E4EEF0; --cold-bg: #FDF8EC;
+  --shelf: #D8C9A8; --shelf-fz: #C2D5DA;
+  --tile: #FFFFFF;
+  --shadow-soft: 0 1px 2px rgba(62,45,24,.08);
+  --shadow-raise: 0 8px 22px rgba(62,45,24,.12);
+}
+.theme-dark {
+  --bg: #1C2126; --panel: #262C32; --panel2: #2F363D; --ink: #E6ECF1; --muted: #93A0AC;
+  --line: #38414A; --input: #313942;
+  --wood: #6E6450; --wood-dark: #574E3D; --cab-bg: #343A33;
+  --shell: #3C444C; --shell-dark: #2C333A;
+  --fz-bg: #2E3B42; --cold-bg: #313841;
+  --shelf: #4A5158; --shelf-fz: #46555E;
+  --tile: #39424B;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.25);
+  --shadow-raise: 0 8px 22px rgba(0,0,0,.35);
+}
+
+/* ============ 왼쪽: 헤더 + 냉장고 ============ */
+.left { display: flex; flex-direction: column; gap: 22px; }
+.brand { display: flex; flex-direction: column; gap: 2px; }
+.brand .kicker { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 2px; color: var(--accent); }
+.brand h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.6px; line-height: 1.1; }
+.brand p { font-size: 13px; color: var(--muted); margin-top: 3px; font-variant-numeric: tabular-nums; }
+
+.appliance { width: 100%; max-width: 440px; margin: 0 auto; padding-left: 14px; }
+.cabinet {
+  position: relative;
+  background: linear-gradient(180deg, var(--wood), var(--wood-dark));
+  border-radius: 16px 16px 5px 5px;
+  padding: 12px 12px 14px;
+  box-shadow: 0 2px 0 rgba(0,0,0,.06);
+}
+.knob {
+  position: absolute; bottom: 16px; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--wood-dark); box-shadow: inset 0 1px 2px rgba(0,0,0,.35);
+}
+.knob.kl { left: 22px; }
+.knob.kr { right: 22px; }
+.fridge-shell {
+  position: relative;
+  margin-top: 7px;
+  background: var(--shell);
+  border-radius: 8px 8px 26px 26px;
+  padding: 12px;
+  display: flex; flex-direction: column; gap: 12px;
+  box-shadow: var(--shadow-raise);
+}
+.handle {
+  position: absolute; left: -13px; width: 9px; border-radius: 5px;
+  background: var(--shell-dark);
+}
+.handle.h-fz { top: 28px; height: 56px; }
+.handle.h-fr { top: 42%; height: 92px; }
+.comp { border-radius: 14px; padding: 12px 14px 14px; }
+.comp-pantry { background: var(--cab-bg); border-radius: 10px; }
+.comp-freezer { background: var(--fz-bg); }
+.comp-fridge { background: var(--cold-bg); }
+.comp-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 11px; padding: 0 2px; }
+.comp-en { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 1.6px; color: var(--ink); }
+.comp-ko { font-size: 12px; color: var(--muted); }
+.comp-count {
+  margin-left: auto; font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 600; color: var(--muted);
+}
+.comp-empty {
+  border: 2px dashed var(--line); border-radius: 10px; padding: 18px;
+  text-align: center; font-size: 12px; color: var(--muted);
+}
+.shelf { margin-bottom: 4px; }
+.shelf:last-child { margin-bottom: 0; }
+.shelf-items { display: flex; gap: 8px; align-items: flex-end; padding: 0 2px 7px; }
+.shelf-board { height: 6px; border-radius: 3px; background: var(--shelf); }
+.comp-freezer .shelf-board { background: var(--shelf-fz); }
+
+.chip {
+  position: relative; flex: 0 0 calc((100% - 16px) / 3); min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: none; border: none; cursor: pointer; padding: 2px;
+  font-family: inherit; color: inherit;
+  transition: transform .15s ease;
+}
+.chip:hover { transform: translateY(-3px); }
+.chip:active { transform: translateY(-1px) scale(.97); }
+.chip-tile {
+  width: 52px; height: 52px; border-radius: 11px;
+  background: var(--tile); border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  display: grid; place-items: center;
+  font-size: 27px; line-height: 1;
+  transition: filter .2s ease, opacity .2s ease, transform .15s ease, border-color .2s ease;
+}
+.chip:hover .chip-tile { border-color: var(--accent); }
+.chip-tile.dim { filter: grayscale(1); opacity: .55; }
+.chip-badge {
+  position: absolute; top: -6px; right: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 700; color: #fff;
+  border-radius: 5px; padding: 2px 5px; line-height: 1;
+  letter-spacing: .3px; pointer-events: none;
+}
+.chip-badge.amber { background: var(--warn); }
+.chip-badge.red { background: var(--danger); }
+.chip-name {
+  font-size: 11px; font-weight: 500; line-height: 1.25; text-align: center;
+  max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.chip-qty { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; color: var(--muted); }
+.chip-bar {
+  width: 34px; height: 4px; border-radius: 2px;
+  background: rgba(127,127,127,.18); overflow: hidden; display: block;
+}
+.chip-bar i { display: block; height: 100%; border-radius: 2px; background: var(--accent); }
+
+.feet { display: flex; justify-content: space-between; padding: 0 34px; }
+.feet i { width: 26px; height: 10px; background: var(--shell-dark); border-radius: 0 0 7px 7px; }
+.legend { margin-top: 14px; text-align: center; font-size: 11.5px; color: var(--muted); }
+
+/* ============ 오른쪽: 현황판 ============ */
+.right { display: flex; flex-direction: column; gap: 14px; max-width: 640px; padding-top: 8px; }
+.stats { display: grid; grid-template-columns: 1.5fr 1fr 1fr; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.stat { padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; }
+.stat + .stat { border-left: 1px solid var(--line); }
+.stat b { font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 600; letter-spacing: -1px; line-height: 1; }
+.stat span { font-size: 11.5px; color: var(--muted); }
+.stat-hint { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .4px; color: var(--muted); }
+.stat-soon.alert b { color: var(--warn); }
+.stat-soon.alert .stat-hint { color: var(--warn); }
+
+.acc {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+  overflow: hidden;
+}
+.acc-head {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  background: none; border: none; cursor: pointer;
+  padding: 15px 18px; font-family: inherit; color: inherit; text-align: left;
+}
+.acc-icon { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 1px; }
+.acc-title { font-size: 15px; font-weight: 600; flex: 1; letter-spacing: -0.2px; }
+.acc-badge {
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  background: var(--panel2); border-radius: 99px; padding: 2px 9px;
+}
+.acc-chev { color: var(--muted); font-size: 13px; transition: transform .25s ease; }
+.acc.open .acc-chev { transform: rotate(180deg); }
+.acc-body {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows .3s ease;
+}
+.acc.open .acc-body { grid-template-rows: 1fr; }
+.acc-inner { overflow: hidden; }
+.acc.open .acc-inner { border-top: 1px solid var(--line); }
+
+/* ============ 폼 공통 ============ */
+.form { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
+.field label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.field label em { font-style: normal; font-weight: 400; }
+.field-row { display: flex; gap: 12px; }
+.inp {
+  font-family: inherit; font-size: 14px; color: var(--ink);
+  background: var(--input); border: 1px solid var(--line); border-radius: 10px;
+  padding: 9px 12px; outline: none; width: 100%;
+  transition: border-color .15s ease;
+}
+.inp:focus { border-color: var(--accent); }
+.name-row { display: flex; gap: 8px; align-items: center; }
+.name-emoji {
+  width: 38px; height: 38px; flex: none; border-radius: 10px;
+  background: var(--panel2); border: 1px solid var(--line);
+  display: grid; place-items: center; font-size: 20px;
+}
+.egrid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+.egrid button {
+  aspect-ratio: 1; border-radius: 9px; border: 1px solid transparent;
+  background: var(--panel2); font-size: 17px; cursor: pointer; padding: 0;
+  transition: transform .1s ease;
+}
+.egrid button:hover { transform: scale(1.12); }
+.egrid button.on { border-color: var(--accent); background: var(--input); box-shadow: 0 0 0 1px var(--accent); }
+.seg { display: flex; gap: 4px; background: var(--panel2); padding: 4px; border-radius: 11px; }
+.seg button {
+  flex: 1; border: none; background: none; cursor: pointer;
+  font-family: inherit; font-size: 13px; font-weight: 500; color: var(--muted);
+  padding: 7px 4px; border-radius: 8px; transition: all .15s ease;
+}
+.seg button.on { background: var(--input); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.10); font-weight: 600; }
+.stepper {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--panel2); border-radius: 11px; padding: 4px; width: fit-content;
+}
+.stepper button {
+  width: 32px; height: 30px; border: none; border-radius: 8px; cursor: pointer;
+  background: var(--input); color: var(--ink); font-size: 16px; line-height: 1;
+  box-shadow: 0 1px 2px rgba(0,0,0,.08);
+}
+.stepper span { min-width: 52px; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; }
+.stepper.sm { padding: 3px; }
+.stepper.sm button { width: 26px; height: 24px; font-size: 13px; }
+.stepper.sm span { min-width: 44px; font-size: 12px; }
+.pct-ctl { display: flex; align-items: center; gap: 10px; }
+.pct-ctl input[type="range"] { flex: 1; accent-color: var(--accent); }
+.pct-ctl span { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; min-width: 40px; text-align: right; }
+.pct-ctl.sm span { font-size: 12px; min-width: 36px; }
+
+.btn {
+  font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  border: none; border-radius: 11px; padding: 10px 18px;
+  transition: filter .15s ease, transform .1s ease;
+}
+.btn:active { transform: scale(.98); }
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent:hover { filter: brightness(1.07); }
+.btn-accent:disabled { opacity: .4; cursor: default; }
+.btn-full { width: 100%; padding: 12px; }
+.btn-ghost { background: var(--panel2); color: var(--ink); }
+.btn-danger { background: var(--danger); color: #fff; }
+.danger-text { color: var(--danger); }
+
+/* ============ 식사 기록 리스트 ============ */
+.meal-list {
+  display: flex; flex-direction: column; gap: 2px;
+  max-height: 280px; overflow-y: auto;
+  border: 1px solid var(--line); border-radius: 12px; padding: 6px;
+}
+.meal-row { border-radius: 9px; padding: 2px 4px; }
+.meal-row.on { background: var(--panel2); }
+.meal-main {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 6px; cursor: pointer; font-size: 13.5px;
+}
+.meal-main input { accent-color: var(--accent); width: 15px; height: 15px; flex: none; }
+.meal-emoji { font-size: 17px; }
+.meal-name { font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.meal-left { font-size: 11.5px; color: var(--muted); flex: none; }
+.meal-row .pct-ctl.sm, .meal-row .stepper.sm { margin: 0 6px 8px 38px; }
+.meal-row .pct-ctl.sm { max-width: 220px; }
+
+/* ============ 히스토리 ============ */
+.hist-wrap { padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 14px; }
+.hist-group { display: flex; flex-direction: column; gap: 8px; }
+.hist-date { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .3px; }
+.hist { display: flex; gap: 10px; align-items: flex-start; }
+.hist-time {
+  flex: none; font-size: 11px; font-weight: 600; color: var(--muted);
+  background: var(--panel2); border-radius: 99px; padding: 3px 9px; margin-top: 1px;
+}
+.hist-body { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.hist-body b { font-size: 14px; }
+.hist-used { display: flex; flex-wrap: wrap; gap: 4px; }
+.hist-chip {
+  font-size: 11.5px; background: var(--panel2); border-radius: 99px; padding: 3px 9px;
+}
+.hist-chip em { font-style: normal; color: var(--muted); }
+.hist-note { font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 2px; }
+.hist-empty { padding: 26px 18px; text-align: center; font-size: 13px; color: var(--muted); }
+
+/* ============ 모달 ============ */
+.overlay {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(28, 36, 44, .42);
+  display: grid; place-items: center; padding: 20px;
+}
+.modal {
+  width: 360px; max-width: 100%;
+  background: var(--panel); border-radius: 20px; padding: 20px;
+  box-shadow: 0 20px 50px rgba(28, 36, 44, .22);
+  display: flex; flex-direction: column; gap: 14px;
+  animation: modal-in .2s ease;
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(10px) scale(.97); }
+  to { opacity: 1; transform: none; }
+}
+.modal-head { display: flex; gap: 12px; align-items: center; }
+.modal-emoji {
+  width: 54px; height: 54px; flex: none; border-radius: 12px;
+  background: var(--tile); border: 1px solid var(--line);
+  display: grid; place-items: center; font-size: 29px;
+}
+.modal-emoji.dim { filter: grayscale(1); opacity: .6; }
+.modal-title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.inp.inp-name {
+  font-size: 17px; font-weight: 700; padding: 4px 8px;
+  border-color: transparent; background: transparent; margin-left: -8px;
+}
+.inp.inp-name:hover { border-color: var(--line); }
+.inp.inp-name:focus { border-color: var(--accent); background: var(--input); }
+.modal-status { font-size: 12px; color: var(--muted); padding-left: 1px; }
+.modal-status.red { color: var(--danger); font-weight: 600; }
+.modal-status.amber { color: var(--warn); font-weight: 600; }
+.modal-status.ok { color: var(--ok); }
+.icon-btn {
+  width: 30px; height: 30px; flex: none; border: none; border-radius: 9px;
+  background: var(--panel2); color: var(--muted); cursor: pointer; font-size: 13px;
+}
+.modal-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 2px; }
+.confirm-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+.confirm-row span { flex: 1; font-size: 13px; font-weight: 600; color: var(--danger); }
+
+/* ============ 토스트 ============ */
+.toast {
+  position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+  z-index: 70; background: var(--ink); color: var(--bg);
+  font-size: 13.5px; font-weight: 500; border-radius: 99px; padding: 11px 22px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.22);
+  animation: toast-in .25s ease;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to { opacity: 1; transform: translateX(-50%); }
+}
+
+/* ============ 반응형 ============ */
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; padding: 20px 16px 40px; }
+  .right { max-width: none; }
+  .appliance { padding-left: 0; }
+  .handle { display: none; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="data.js"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="fridge.jsx"></script>
+<script type="text/babel" src="panel.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
