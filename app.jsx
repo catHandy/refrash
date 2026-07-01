@@ -31,6 +31,13 @@ function App() {
     });
   };
 
+  const resetAll = function () {
+    if (!window.confirm('모든 재료와 히스토리를 삭제할까요?\n되돌릴 수 없어요.')) return;
+    const fresh = { items: [], history: [] };
+    appFA.saveState(fresh);
+    setState(fresh);
+    showToast('전체 초기화했어요');
+  };
   const addItem = function (item) {
     commit(function (s) { return { items: s.items.concat([item]), history: s.history }; });
     const loc = appFA.LOCATIONS.find(function (l) { return l.key === item.location; });
@@ -118,6 +125,8 @@ function App() {
         <TweakSection label="스타일"></TweakSection>
         <TweakRadio label="테마" value={t.theme} options={['쿨 메탈', '따뜻한 우드', '다크']}
           onChange={function (v) { setTweak('theme', v); }}></TweakRadio>
+        <TweakSection label="데이터"></TweakSection>
+        <TweakButton label="전체 초기화" onClick={resetAll}></TweakButton>
         <TweakColor label="포인트 컬러" value={t.accent} options={['#3E6075', '#4C7A6B', '#C2603F', '#5B5E8C']}
           onChange={function (v) { setTweak('accent', v); }}></TweakColor>
         <TweakSection label="동작"></TweakSection>

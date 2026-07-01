@@ -22,6 +22,41 @@ function StatusBar({ items, history, threshold }) {
 }
 
 function AccSection({ id, icon, title, badge, open, onToggle, children }) {
+  const innerRef = React.useRef(null);
+  const bodyRef = React.useRef(null);
+  const mounted = React.useRef(false);
+  const timerRef = React.useRef(null);
+
+  React.useLayoutEffect(function () {
+    const body = bodyRef.current;
+    const inner = innerRef.current;
+    if (!body || !inner) return;
+
+    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+
+    if (!mounted.current) {
+      mounted.current = true;
+      body.style.height = open ? 'auto' : '0px';
+      return;
+    }
+
+    if (open) {
+      const target = inner.scrollHeight;
+      body.style.height = target + 'px';
+      timerRef.current = setTimeout(function () {
+        if (bodyRef.current === body) { body.style.height = 'auto'; }
+        timerRef.current = null;
+      }, 280);
+    } else {
+      const current = inner.scrollHeight;
+      body.style.height = current + 'px';
+      void body.offsetHeight;
+      body.style.height = '0px';
+    }
+
+    return function () { if (timerRef.current) { clearTimeout(timerRef.current); } };
+  }, [open]);
+
   return (
     <section className={'acc' + (open ? ' open' : '')} data-screen-label={title}>
       <button type="button" className="acc-head" onClick={function () { onToggle(id); }}>
@@ -30,18 +65,22 @@ function AccSection({ id, icon, title, badge, open, onToggle, children }) {
         {badge != null ? <span className="acc-badge">{badge}</span> : null}
         <span className="acc-chev">▾</span>
       </button>
-      <div className="acc-body"><div className="acc-inner">{children}</div></div>
+      <div className="acc-body" ref={bodyRef}>
+        <div className="acc-inner" ref={innerRef}>{children}</div>
+      </div>
     </section>
   );
 }
 
-const ADD_BLANK = {
-  name: '', emoji: '🍎', location: 'fridge', category: '채소',
-  qtyType: 'percent', qty: 100, count: 1, unit: '개', expiry: ''
-};
+function makeBlank() {
+  return {
+    name: '', emoji: '🍎', location: 'fridge', category: '채소',
+    qtyType: 'percent', qty: 100, count: 1, unit: '개', expiry: panelFA.todayStr()
+  };
+}
 
 function AddItemForm({ onAdd }) {
-  const [f, setF] = React.useState(ADD_BLANK);
+  const [f, setF] = React.useState(makeBlank);
   const set = function (k, v) { setF(function (p) { const n = Object.assign({}, p); n[k] = v; return n; }); };
   const submit = function () {
     if (!f.name.trim()) return;
@@ -53,7 +92,7 @@ function AddItemForm({ onAdd }) {
       unit: f.qtyType === 'count' ? f.unit : undefined,
       expiry: f.expiry || null
     });
-    setF(ADD_BLANK);
+    setF(makeBlank());
   };
   return (
     <div className="form">
@@ -71,7 +110,10 @@ function AddItemForm({ onAdd }) {
           {panelFA.EMOJI_CHOICES.map(function (em) {
             return (
               <button type="button" key={em} className={f.emoji === em ? 'on' : ''}
-                onClick={function () { set('emoji', em); }}>{em}</button>
+                onClick={function () {
+                  const cat = panelFA.EMOJI_CATEGORY[em];
+                  setF(function(p) { const n = Object.assign({}, p, {emoji: em}); if (cat) n.category = cat; return n; });
+                }}>{em}</button>
             );
           })}
         </div>

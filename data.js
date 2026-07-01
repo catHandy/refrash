@@ -29,6 +29,17 @@
   const EMOJI_CHOICES = ['🍎', '🍌', '🍇', '🍅', '🥬', '🥕', '🧅', '🥔', '🌽', '🥦', '🍄', '🫐',
     '🥩', '🍗', '🐟', '🦐', '🥚', '🥛', '🧀', '🧈', '🍚', '🍜', '🍝', '🍞',
     '🥫', '🫙', '🥣', '🍯', '🥟', '🍨', '🍪', '🧃'];
+  const EMOJI_CATEGORY = {
+    '🍎': '과일', '🍌': '과일', '🍇': '과일', '🫐': '과일',
+    '🍅': '채소', '🥬': '채소', '🥕': '채소', '🧅': '채소', '🥔': '채소', '🌽': '채소', '🥦': '채소', '🍄': '기타',
+    '🥩': '육류', '🍗': '육류',
+    '🐟': '해산물', '🦐': '해산물',
+    '🥚': '유제품', '🥛': '유제품', '🧀': '유제품', '🧈': '유제품',
+    '🍚': '곡물·면', '🍜': '곡물·면', '🍝': '곡물·면', '🍞': '곡물·면', '🥟': '곡물·면',
+    '🥫': '통조림·가공', '🫙': '통조림·가공',
+    '🥣': '간식', '🍨': '간식', '🍪': '간식', '🧃': '간식',
+    '🍯': '기타'
+  };
 
   function seedItems() {
     const o = offsetDate;
@@ -93,7 +104,7 @@
 
   window.FridgeApp = {
     todayStr: todayStr, offsetDate: offsetDate, daysLeft: daysLeft, fmtK: fmtK, uid: uid,
-    LOCATIONS: LOCATIONS, CATEGORIES: CATEGORIES, MEAL_TIMES: MEAL_TIMES, EMOJI_CHOICES: EMOJI_CHOICES,
+    LOCATIONS: LOCATIONS, CATEGORIES: CATEGORIES, MEAL_TIMES: MEAL_TIMES, EMOJI_CHOICES: EMOJI_CHOICES, EMOJI_CATEGORY: EMOJI_CATEGORY,
     seedItems: seedItems, seedHistory: seedHistory, loadState: loadState, saveState: saveState
   };
 })();

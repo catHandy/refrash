@@ -122,7 +122,7 @@ body {
 .comp-freezer .shelf-board { background: var(--shelf-fz); }
 
 .chip {
-  position: relative; flex: 0 0 calc((100% - 16px) / 3); min-width: 0;
+  position: relative; flex: 0 0 calc((100% - 24px) / 4); min-width: 0;
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   background: none; border: none; cursor: pointer; padding: 2px;
   font-family: inherit; color: inherit;
@@ -139,9 +139,10 @@ body {
   transition: filter .2s ease, opacity .2s ease, transform .15s ease, border-color .2s ease;
 }
 .chip:hover .chip-tile { border-color: var(--accent); }
+.chip-tilebox { position: relative; display: inline-block; }
 .chip-tile.dim { filter: grayscale(1); opacity: .55; }
 .chip-badge {
-  position: absolute; top: -6px; right: 4px;
+  position: absolute; top: -6px; right: -6px;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 9px; font-weight: 700; color: #fff;
   border-radius: 5px; padding: 2px 5px; line-height: 1;
@@ -194,11 +195,10 @@ body {
 .acc-chev { color: var(--muted); font-size: 13px; transition: transform .25s ease; }
 .acc.open .acc-chev { transform: rotate(180deg); }
 .acc-body {
-  display: grid; grid-template-rows: 0fr;
-  transition: grid-template-rows .3s ease;
+  overflow: hidden;
+  transition: height .28s ease;
 }
-.acc.open .acc-body { grid-template-rows: 1fr; }
-.acc-inner { overflow: hidden; }
+.acc-inner { }
 .acc.open .acc-inner { border-top: 1px solid var(--line); }
 
 /* ============ 폼 공통 ============ */

@@ -30,8 +30,10 @@ function ItemChip({ item, threshold, showLabels, onClick }) {
   const ex = expiryInfo(item.expiry, threshold);
   return (
     <button type="button" className="chip" onClick={onClick} title={item.name}>
-      <span className={'chip-tile' + (ex.dim ? ' dim' : '')}>{item.emoji}</span>
-      {ex.badge ? <span className={'chip-badge ' + (ex.expired ? 'red' : 'amber')}>{ex.badge}</span> : null}
+      <span className="chip-tilebox">
+        <span className={'chip-tile' + (ex.dim ? ' dim' : '')}>{item.emoji}</span>
+        {ex.badge ? <span className={'chip-badge ' + (ex.expired ? 'red' : 'amber')}>{ex.badge}</span> : null}
+      </span>
       {showLabels ? <span className="chip-name">{item.name}</span> : null}
       <QtyIndicator item={item}></QtyIndicator>
     </button>
@@ -76,7 +78,7 @@ function FridgeUnit({ items, threshold, showLabels, onSelect }) {
   return (
     <div className="appliance" data-screen-label="냉장고 단면">
       <div className="cabinet">
-        <Compartment comp={L[0]} items={by('pantry')} perShelf={3} threshold={threshold}
+        <Compartment comp={L[0]} items={by('pantry')} perShelf={4} threshold={threshold}
           showLabels={showLabels} onSelect={onSelect}></Compartment>
         <span className="knob kl"></span>
         <span className="knob kr"></span>
@@ -84,9 +86,9 @@ function FridgeUnit({ items, threshold, showLabels, onSelect }) {
       <div className="fridge-shell">
         <span className="handle h-fz"></span>
         <span className="handle h-fr"></span>
-        <Compartment comp={L[1]} items={by('freezer')} perShelf={3} threshold={threshold}
+        <Compartment comp={L[1]} items={by('freezer')} perShelf={4} threshold={threshold}
           showLabels={showLabels} onSelect={onSelect}></Compartment>
-        <Compartment comp={L[2]} items={by('fridge')} perShelf={3} threshold={threshold}
+        <Compartment comp={L[2]} items={by('fridge')} perShelf={4} threshold={threshold}
           showLabels={showLabels} onSelect={onSelect}></Compartment>
       </div>
       <div className="feet"><i></i><i></i></div>
